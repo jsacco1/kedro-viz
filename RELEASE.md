@@ -21,7 +21,6 @@ Please follow the established format:
 
 ## Bug fixes and other changes
 
-- Upgrade dev dependencies to solve snyk errors. (#486)
 - Removed build/api after running build. (#515)
 - Fix path parsing for PartitionedDataSet (#516)
 - Fix dev server port (#517)
