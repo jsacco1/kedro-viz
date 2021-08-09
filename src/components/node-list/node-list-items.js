@@ -270,7 +270,7 @@ export const getFilteredNodeItems = createSelector(
     for (const type of Object.keys(filteredNodes)) {
       filteredNodeItems[type] = filteredNodes[type]
         .map((node) => {
-          const checked = !node.disabled_node;
+          const checked = !node.disabledNode;
           const disabled =
             node.disabled_tag ||
             node.disabled_type ||
@@ -283,7 +283,7 @@ export const getFilteredNodeItems = createSelector(
             invisibleIcon: InvisibleIcon,
             active: undefined,
             selected: nodeSelected[node.id],
-            faded: disabled || node.disabled_node,
+            faded: disabled || node.disabledNode,
             visible: !disabled && checked,
             checked,
             disabled,

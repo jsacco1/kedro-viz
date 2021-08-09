@@ -45,10 +45,10 @@ export const parallelConstraint = {
   property: 'x',
 
   solve: (constraint) => {
-    const { a, b, strength } = constraint;
-    const resolve = strength * (a.x - b.x);
-    a.x -= resolve;
-    b.x += resolve;
+    const { alpha, beta, strength } = constraint;
+    const resolve = strength * (alpha.x - beta.x);
+    alpha.x -= resolve;
+    beta.x += resolve;
   },
 
   strict: (constraint, constants, variableA, variableB) =>

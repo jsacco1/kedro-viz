@@ -4,7 +4,8 @@ const getClickedNode = (state) => state.node.clicked;
 /**
  * Comparison for sorting alphabetically by name, otherwise by value
  */
-const sortAlpha = (a, b) => (a.name || a).localeCompare(b.name || b);
+const sortAlpha = (alpha, beta) =>
+  (alpha.name || alpha).localeCompare(beta.name || beta);
 
 /**
  * Returns true if metadata sidebar is visible

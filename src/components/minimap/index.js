@@ -139,7 +139,7 @@ export class MiniMap extends Component {
    * Create D3 element selectors
    */
   selectD3Elements() {
-    this.el = {
+    this.element = {
       svg: select(this.svgRef.current),
       wrapper: select(this.wrapperRef.current),
       nodeGroup: select(this.nodesRef.current),

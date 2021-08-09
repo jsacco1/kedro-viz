@@ -1,3 +1,5 @@
+/* eslint-disable id-length */
+
 /**
  * PI / 2 constant
  */

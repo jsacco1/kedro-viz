@@ -156,7 +156,7 @@ export class FlowChart extends Component {
    * Create D3 element selectors
    */
   selectD3Elements() {
-    this.el = {
+    this.elementement = {
       svg: select(this.svgRef.current),
       wrapper: select(this.wrapperRef.current),
       edgeGroup: select(this.edgesRef.current),
@@ -227,17 +227,17 @@ export class FlowChart extends Component {
    * Add viewBox on window print so that the SVG can be scaled to fit
    */
   handleBeforePrint = () => {
-    const gs = this.props.graphSize;
-    const width = gs.width + gs.marginx * 2;
-    const height = gs.height + gs.marginy * 2;
-    this.el.svg.attr('viewBox', `0 0 ${width} ${height}`);
+    const graphSize = this.props.graphSize;
+    const width = graphSize.width + graphSize.marginx * 2;
+    const height = graphSize.height + graphSize.marginy * 2;
+    this.element.svg.attr('viewBox', `0 0 ${width} ${height}`);
   };
 
   /**
    * Remove viewBox once printing is done
    */
   handleAfterPrint = () => {
-    this.el.svg.attr('viewBox', null);
+    this.element.svg.attr('viewBox', null);
   };
 
   /**
@@ -248,16 +248,16 @@ export class FlowChart extends Component {
     const { k: scale, x, y } = transform;
 
     // Apply animating class to zoom wrapper
-    this.el.wrapper.classed(
+    this.element.wrapper.classed(
       'pipeline-flowchart__zoom-wrapper--animating',
       true
     );
 
     // Update layer label y positions
-    if (this.el.layerNames) {
-      this.el.layerNames.style('transform', (d) => {
-        const ty = y + (d.y + d.height / 2) * scale;
-        return `translateY(${ty}px)`;
+    if (this.element.layerNames) {
+      this.element.layerNames.style('transform', (d) => {
+        const deltaY = y + (d.y + d.height / 2) * scale;
+        return `translateY(${deltaY}px)`;
       });
     }
 
@@ -285,7 +285,7 @@ export class FlowChart extends Component {
    * Called when the view changes have ended (i.e. after transition ends)
    */
   onViewChangeEnd() {
-    this.el.wrapper.classed(
+    this.elementement.wrapper.classed(
       'pipeline-flowchart__zoom-wrapper--animating',
       false
     );

@@ -119,11 +119,11 @@ export const getNodeData = createSelector(
     nodeModularPipelines
   ) =>
     nodeIDs
-      .sort((a, b) => {
-        if (nodeName[a] < nodeName[b]) {
+      .sort((alpha, beta) => {
+        if (nodeName[alpha] < nodeName[beta]) {
           return -1;
         }
-        if (nodeName[a] > nodeName[b]) {
+        if (nodeName[alpha] > nodeName[beta]) {
           return 1;
         }
         return 0;
@@ -135,10 +135,10 @@ export const getNodeData = createSelector(
         icon: getShortType([nodeDatasetType[id]], nodeType[id]),
         modularPipelines: nodeModularPipelines[id],
         disabled: nodeDisabled[id],
-        disabled_node: Boolean(nodeDisabledNode[id]),
-        disabled_tag: nodeDisabledTag[id],
-        disabled_modularPipeline: nodeDisabledModularPipeline[id],
-        disabled_type: Boolean(typeDisabled[nodeType[id]]),
+        disabledNode: Boolean(nodeDisabledNode[id]),
+        disabledTag: nodeDisabledTag[id],
+        disabledModularPipeline: nodeDisabledModularPipeline[id],
+        disabledType: Boolean(typeDisabled[nodeType[id]]),
       }))
 );
 

@@ -376,10 +376,10 @@ describe('NodeList', () => {
     const nodeList = expect.arrayContaining([
       expect.objectContaining({
         disabled: expect.any(Boolean),
-        disabled_node: expect.any(Boolean),
-        disabled_tag: expect.any(Boolean),
-        disabled_type: expect.any(Boolean),
-        disabled_modularPipeline: expect.any(Boolean),
+        disabledNode: expect.any(Boolean),
+        disabledTag: expect.any(Boolean),
+        disabledType: expect.any(Boolean),
+        disabledModularPipeline: expect.any(Boolean),
         id: expect.any(String),
         name: expect.any(String),
         type: expect.any(String),
