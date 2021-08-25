@@ -9,8 +9,14 @@ import { getUrl } from '../utils';
  * @param {object} fallback The fallback response object on request failure. Default `{}`.
  * @return {function} A promise that will return when the file is loaded and parsed
  */
-const loadJsonData = (path = getUrl('main'), fallback = {}) =>
-  json(path).catch(() => {
+const loadJsonData = (path = getUrl('main'), fallback = {}) => {
+  const isDemo = document.location.host === 'quantumblacklabs.github.io';
+  const expandedPath = isDemo
+    ? `https://yceqbk22jb.execute-api.eu-west-2.amazonaws.com/prod${path.substr(
+        1
+      )}`
+    : path;
+  return json(expandedPath).catch(() => {
     const fullPath = `/public${path.substr(1)}`;
 
     // For main route throw a user error
@@ -22,5 +28,6 @@ const loadJsonData = (path = getUrl('main'), fallback = {}) =>
 
     return new Promise((resolve) => resolve(fallback));
   });
+};
 
 export default loadJsonData;
