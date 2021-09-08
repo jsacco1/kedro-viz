@@ -2,7 +2,7 @@ import { createSelector } from 'reselect';
 import { arrayToObject } from '../utils';
 import { getNodeDisabledPipeline, getPipelineNodeIDs } from './pipeline';
 import { getTagCount } from './tags';
-import { getModularPipelineCount } from './modular-pipelines';
+import { getFocusedModularPipeline } from './modular-pipelines';
 
 const getNodeIDs = (state) => state.node.ids;
 const getNodeDisabledNode = (state) => state.node.disabled;
@@ -55,26 +55,26 @@ export const getNodeDisabledModularPipeline = createSelector(
   [
     getNodeIDs,
     getModularPipelineEnabled,
-    getModularPipelineCount,
     getNodeModularPipelines,
     getEdgeIDs,
     getNodeType,
     getEdgeSources,
     getEdgeTargets,
+    getFocusedModularPipeline,
   ],
   (
     nodeIDs,
     modularPipelineEnabled,
-    modularPipelineCount,
     nodeModularPipelines,
     edgeIDs,
     nodeType,
     edgeSources,
-    edgeTargets
+    edgeTargets,
+    focusedModularPipeline
   ) =>
     arrayToObject(nodeIDs, (nodeID) => {
       // check for excpetion 1: when there are no modular pipelines enabled
-      if (modularPipelineCount.enabled === 0) {
+      if (focusedModularPipeline === null) {
         return false;
       }
 

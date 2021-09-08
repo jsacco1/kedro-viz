@@ -1,5 +1,4 @@
 import { createSelector } from 'reselect';
-import { getPipelineModularPipelineIDs } from './pipeline';
 
 export const getModularPipelineIDs = (state) => state.modularPipeline.ids;
 export const getFocusedModularPipeline = (state) =>
@@ -21,16 +20,4 @@ export const getModularPipelineData = createSelector(
         name: modularPipelineName[id],
         enabled: Boolean(modularPipelineEnabled[id]),
       }))
-);
-
-/**
- * Get the total and enabled number of modular pipelines
- */
-export const getModularPipelineCount = createSelector(
-  [getPipelineModularPipelineIDs, getModularPipelineEnabled],
-  (modularPipelineIDs, modularPipelineEnabled) => ({
-    total: modularPipelineIDs.length,
-    enabled: modularPipelineIDs.filter((id) => modularPipelineEnabled[id])
-      .length,
-  })
 );
