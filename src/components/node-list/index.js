@@ -76,9 +76,16 @@ const NodeListProvider = ({
   const groups = getGroups({ items });
 
   const onItemClick = (item) => {
-    if (isGroupType(item.type)) {
+    if (isGroupType(item.type) || isModularPipelineType(item.type)) {
       onGroupItemChange(item, item.checked);
-
+      if (isModularPipelineType(item.type)) {
+        if (focusMode === null) {
+          onToggleFocusMode(item);
+        } else {
+          onToggleFocusMode(null);
+        }
+      }
+    } else {
       if (item.faded || item.selected) {
         onToggleNodeSelected(null);
       } else {
@@ -92,7 +99,6 @@ const NodeListProvider = ({
       onGroupItemChange(item, checked);
       if (isModularPipelineType(item.type)) {
         if (focusMode === null) {
-          console.log('Toggle focus mode ON', focusMode, item);
           onToggleFocusMode(item);
         } else {
           onToggleFocusMode(null);
