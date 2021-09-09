@@ -1,7 +1,7 @@
 import React from 'react';
 import createPlotlyComponent from 'react-plotly.js/factory';
 import Plotly from 'plotly.js-cartesian-dist';
-import deepmerge from 'deepmerge';
+import merge from 'lodash.merge';
 import { connect } from 'react-redux';
 import './plotly-chart.css';
 import {
@@ -42,15 +42,15 @@ const PlotlyChart = ({ theme, view, data = [], layout = {} }) => {
 const updateLayout = (theme, view, layout) => {
   if (theme === 'dark') {
     if (view === 'modal') {
-      return deepmerge(layout, darkModalTemplate);
+      return merge(layout, darkModalTemplate);
     } else {
-      return deepmerge(layout, darkPreviewTemplate);
+      return merge(layout, darkPreviewTemplate);
     }
   } else {
     if (view === 'modal') {
-      return deepmerge(layout, lightModalTemplate);
+      return merge(layout, lightModalTemplate);
     } else {
-      return deepmerge(layout, lightPreviewTemplate);
+      return merge(layout, lightPreviewTemplate);
     }
   }
 };

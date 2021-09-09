@@ -76,9 +76,11 @@ const NodeListProvider = ({
   const groups = getGroups({ items });
 
   const onItemClick = (item) => {
+    console.log(item);
     if (isGroupType(item.type) || isModularPipelineType(item.type)) {
       onGroupItemChange(item, item.checked);
       if (isModularPipelineType(item.type)) {
+        console.log('>>>>>>>>>>>>> ', focusMode);
         if (focusMode === null) {
           onToggleFocusMode(item);
         } else {

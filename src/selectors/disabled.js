@@ -7,10 +7,9 @@ import { getFocusedModularPipeline } from './modular-pipelines';
 const getNodeIDs = (state) => state.node.ids;
 const getNodeDisabledNode = (state) => state.node.disabled;
 const getNodeTags = (state) => state.node.tags;
-const getNodeModularPipelines = (state) => state.node.modularPipelines;
+const getModularPipelineNodes = (state) => state.modularPipeline.nodes;
 const getNodeType = (state) => state.node.type;
 const getTagEnabled = (state) => state.tag.enabled;
-const getModularPipelineEnabled = (state) => state.modularPipeline.enabled;
 const getNodeTypeDisabled = (state) => state.nodeType.disabled;
 const getEdgeIDs = (state) => state.edge.ids;
 const getEdgeSources = (state) => state.edge.sources;
@@ -18,6 +17,43 @@ const getEdgeTargets = (state) => state.edge.targets;
 const getLayerIDs = (state) => state.layer.ids;
 const getLayersVisible = (state) => state.layer.visible;
 const getNodeLayer = (state) => state.node.layer;
+
+export const getNodeIDsInFocusedModularPipeline = createSelector(
+  [getModularPipelineNodes, getFocusedModularPipeline],
+  (modularPipelineNodes, focusedModularPipeline) => {
+    return focusedModularPipeline === null
+      ? new Set()
+      : modularPipelineNodes[focusedModularPipeline.id];
+  }
+);
+
+export const getInputsAndOutputsForFocusedModularPipeline = createSelector(
+  [
+    getNodeIDsInFocusedModularPipeline,
+    getEdgeIDs,
+    getEdgeSources,
+    getEdgeTargets,
+  ],
+  (focusedModularPipelineNodeIDs, edgeIDs, edgeSources, edgeTargets) => {
+    const result = new Set();
+    for (const edgeID of edgeIDs) {
+      const source = edgeSources[edgeID];
+      const target = edgeTargets[edgeID];
+      if (
+        focusedModularPipelineNodeIDs.has(source) &&
+        !focusedModularPipelineNodeIDs.has(target)
+      ) {
+        result.add(target);
+      } else if (
+        !focusedModularPipelineNodeIDs.has(source) &&
+        focusedModularPipelineNodeIDs.has(target)
+      ) {
+        result.add(source);
+      }
+    }
+    return result;
+  }
+);
 
 /**
  * Calculate whether nodes should be disabled based on their tags
@@ -37,15 +73,6 @@ export const getNodeDisabledTag = createSelector(
     })
 );
 
-const isNodeOfActiveModularPipeline = (
-  nodeModularPipelines,
-  nodeID,
-  modularPipelineEnabled
-) =>
-  nodeModularPipelines[nodeID].some(
-    (modularPipeline) => modularPipelineEnabled[modularPipeline]
-  );
-
 /**
  * Calculate whether nodes should be disabled based on their modular pipelines,
  * except related dataset nodes and parameter nodes that are input and output
@@ -54,77 +81,26 @@ const isNodeOfActiveModularPipeline = (
 export const getNodeDisabledModularPipeline = createSelector(
   [
     getNodeIDs,
-    getModularPipelineEnabled,
-    getNodeModularPipelines,
-    getEdgeIDs,
-    getNodeType,
-    getEdgeSources,
-    getEdgeTargets,
+    getNodeIDsInFocusedModularPipeline,
+    getInputsAndOutputsForFocusedModularPipeline,
     getFocusedModularPipeline,
   ],
   (
     nodeIDs,
-    modularPipelineEnabled,
-    nodeModularPipelines,
-    edgeIDs,
-    nodeType,
-    edgeSources,
-    edgeTargets,
+    nodeIDsInFocusedModularPipeline,
+    inputsAndOutputsForFocusedModularPipeline,
     focusedModularPipeline
   ) =>
     arrayToObject(nodeIDs, (nodeID) => {
-      // check for excpetion 1: when there are no modular pipelines enabled
-      if (focusedModularPipeline === null) {
-        return false;
-      }
-
-      const isDisabledByModularPipeline = !isNodeOfActiveModularPipeline(
-        nodeModularPipelines,
-        nodeID,
-        modularPipelineEnabled
+      // for a node to be disabled via modular pipeline,
+      // there needs to be a focused modular pipeline and
+      // the node doesn't belong in the pipeline and
+      // it is not an input or output of said pipeline.
+      return (
+        focusedModularPipeline !== null &&
+        !nodeIDsInFocusedModularPipeline.has(nodeID) &&
+        !inputsAndOutputsForFocusedModularPipeline.has(nodeID)
       );
-
-      // check for excpetion 2: check for input/output nodes that are not part of modular pipelines
-      if (
-        isDisabledByModularPipeline &&
-        (nodeType[nodeID] === 'parameters' || nodeType[nodeID] === 'data')
-      ) {
-        const relatedEdgeIDs = edgeIDs.filter((edgeID) =>
-          edgeID.includes(nodeID)
-        );
-
-        let isMPEdge = false;
-
-        relatedEdgeIDs.forEach((relatedEdgeID) => {
-          const source = edgeSources[relatedEdgeID];
-          const target = edgeTargets[relatedEdgeID];
-
-          const isInput =
-            source === nodeID &&
-            isNodeOfActiveModularPipeline(
-              nodeModularPipelines,
-              target,
-              modularPipelineEnabled
-            );
-
-          const isOutput =
-            target === nodeID &&
-            isNodeOfActiveModularPipeline(
-              nodeModularPipelines,
-              source,
-              modularPipelineEnabled
-            );
-
-          // check if the target node belongs to a enabled modualr pipeline
-          if ((isInput || isOutput) && isMPEdge === false) {
-            isMPEdge = true;
-          }
-        });
-        return !isMPEdge;
-      }
-
-      // Hide nodes that don't have at least one modular pipeline filter enabled
-      return isDisabledByModularPipeline;
     })
 );
 

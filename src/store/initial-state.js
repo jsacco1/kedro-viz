@@ -1,4 +1,4 @@
-import deepmerge from 'deepmerge';
+import merge from 'lodash.merge';
 import { loadState, saveState } from './helpers';
 import normalizeData from './normalize-data';
 import { getFlagsFromUrl, Flags } from '../utils/flags';
@@ -52,7 +52,7 @@ export const mergeLocalStorage = (state) => {
       delete localStorageState[key];
     }
   });
-  return deepmerge(state, localStorageState);
+  return merge(state, localStorageState);
 };
 
 /**

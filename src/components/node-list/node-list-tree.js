@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 
 import { makeStyles, withStyles } from '@material-ui/core/styles';
@@ -65,9 +65,7 @@ const TreeListProvider = ({
 }) => {
   const classes = useStyles();
 
-  const [expandedPipelines, setExpandedPipelines] = useState([]);
-
-  useEffect(() => {
+  const getExpandedPipelines = useCallback(() => {
     const filteredTreeItems =
       searchValue !== ''
         ? getFilteredTreeItems({
@@ -89,7 +87,7 @@ const TreeListProvider = ({
       filteredTreeItems.forEach((modularPipeline) =>
         expandedModularPipelines.push(modularPipeline.id)
       );
-    setExpandedPipelines(expandedModularPipelines);
+    return expandedModularPipelines;
   }, [
     searchValue,
     nodes,
@@ -101,6 +99,7 @@ const TreeListProvider = ({
     focusMode,
     inputOutputDataNodes,
   ]);
+  const expandedPipelines = getExpandedPipelines();
 
   const treeData = getNestedModularPipelines({
     nodes,

@@ -14,6 +14,11 @@ export const createInitialPipelineState = () => ({
     name: {},
     enabled: {},
     active: {},
+
+    // map of modular pipeline id to set of nodes in the modular pipeline
+    // e.g. "data_science": Set(["node_a", "node_b", "node_c"])
+    // this is the inverse of state.node.modularPipelines
+    nodes: {},
   },
   node: {
     ids: [],
@@ -156,6 +161,12 @@ const addNode = (state) => (node) => {
   state.node.transcodedTypes[id] = node.transcoded_types;
   state.node.runCommand[id] = node.runCommand;
   state.node.modularPipelines[id] = node.modular_pipelines || [];
+  // add this node to the list of nodes that its modular pipelines contain
+  node.modular_pipelines.forEach((modularPipelineID) => {
+    state.modularPipeline.nodes[modularPipelineID] =
+      state.modularPipeline.nodes[modularPipelineID] || new Set();
+    state.modularPipeline.nodes[modularPipelineID].add(id);
+  });
 };
 
 /**
@@ -163,17 +174,15 @@ const addNode = (state) => (node) => {
  * @param {Object} source - Parent node
  * @param {Object} target - Child node
  */
-const addEdge =
-  (state) =>
-  ({ source, target }) => {
-    const id = createEdgeID(source, target);
-    if (state.edge.ids.includes(id)) {
-      return;
-    }
-    state.edge.ids.push(id);
-    state.edge.sources[id] = source;
-    state.edge.targets[id] = target;
-  };
+const addEdge = (state) => ({ source, target }) => {
+  const id = createEdgeID(source, target);
+  if (state.edge.ids.includes(id)) {
+    return;
+  }
+  state.edge.ids.push(id);
+  state.edge.sources[id] = source;
+  state.edge.targets[id] = target;
+};
 
 /**
  * Add a new Tag if it doesn't already exist
@@ -214,6 +223,10 @@ const normalizeData = (data) => {
     return state;
   }
 
+  if (data.modular_pipelines) {
+    data.modular_pipelines.forEach(addModularPipeline(state));
+  }
+
   data.nodes.forEach(addNode(state));
   data.edges.forEach(addEdge(state));
   if (data.pipelines) {
@@ -223,9 +236,7 @@ const normalizeData = (data) => {
       state.pipeline.active = state.pipeline.main;
     }
   }
-  if (data.modular_pipelines) {
-    data.modular_pipelines.forEach(addModularPipeline(state));
-  }
+
   if (data.tags) {
     data.tags.forEach(addTag(state));
   }
