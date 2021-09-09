@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 import utils from '@quantumblack/kedro-ui/lib/utils';
 import NodeList from './node-list';
@@ -76,17 +76,8 @@ const NodeListProvider = ({
   const groups = getGroups({ items });
 
   const onItemClick = (item) => {
-    console.log(item);
-    if (isGroupType(item.type) || isModularPipelineType(item.type)) {
+    if (isGroupType(item.type)) {
       onGroupItemChange(item, item.checked);
-      if (isModularPipelineType(item.type)) {
-        console.log('>>>>>>>>>>>>> ', focusMode);
-        if (focusMode === null) {
-          onToggleFocusMode(item);
-        } else {
-          onToggleFocusMode(null);
-        }
-      }
     } else {
       if (item.faded || item.selected) {
         onToggleNodeSelected(null);
@@ -96,23 +87,58 @@ const NodeListProvider = ({
     }
   };
 
-  const onItemChange = (item, checked) => {
-    if (isGroupType(item.type) || isModularPipelineType(item.type)) {
-      onGroupItemChange(item, checked);
-      if (isModularPipelineType(item.type)) {
-        if (focusMode === null) {
-          onToggleFocusMode(item);
-        } else {
-          onToggleFocusMode(null);
+  const onGroupItemChange = useCallback(
+    (item, wasChecked) => {
+      // Toggle the group
+      if (isTagType(item.type)) {
+        onToggleTagFilter(item.id, !wasChecked);
+      } else if (isModularPipelineType(item.type)) {
+        onToggleModularPipelineFilter([item.id], !wasChecked);
+      } else if (isElementType(item.type)) {
+        onToggleTypeDisabled({ [item.id]: wasChecked });
+      }
+
+      // Reset node selection
+      onToggleNodeSelected(null);
+      onToggleNodeActive(null);
+    },
+    [
+      onToggleModularPipelineFilter,
+      onToggleTagFilter,
+      onToggleNodeActive,
+      onToggleNodeSelected,
+      onToggleTypeDisabled,
+    ]
+  );
+
+  const onItemChange = useCallback(
+    (item, checked) => {
+      console.log(item, checked);
+      if (isGroupType(item.type) || isModularPipelineType(item.type)) {
+        console.log(item, checked, focusMode);
+        onGroupItemChange(item, checked);
+        if (isModularPipelineType(item.type)) {
+          if (focusMode === null) {
+            onToggleFocusMode(item);
+          } else {
+            onToggleFocusMode(null);
+          }
         }
+      } else {
+        if (checked) {
+          onToggleNodeActive(null);
+        }
+        onToggleNodesDisabled([item.id], checked);
       }
-    } else {
-      if (checked) {
-        onToggleNodeActive(null);
-      }
-      onToggleNodesDisabled([item.id], checked);
-    }
-  };
+    },
+    [
+      focusMode,
+      onGroupItemChange,
+      onToggleFocusMode,
+      onToggleNodeActive,
+      onToggleNodesDisabled,
+    ]
+  );
 
   const onItemMouseEnter = (item) => {
     if (isTagType(item.type)) {
@@ -160,21 +186,6 @@ const NodeListProvider = ({
         )
       );
     }
-  };
-
-  const onGroupItemChange = (item, wasChecked) => {
-    // Toggle the group
-    if (isTagType(item.type)) {
-      onToggleTagFilter(item.id, !wasChecked);
-    } else if (isModularPipelineType(item.type)) {
-      onToggleModularPipelineFilter([item.id], !wasChecked);
-    } else if (isElementType(item.type)) {
-      onToggleTypeDisabled({ [item.id]: wasChecked });
-    }
-
-    // Reset node selection
-    onToggleNodeSelected(null);
-    onToggleNodeActive(null);
   };
 
   // Deselect node on Escape key

@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useMemo } from 'react';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import { changed } from '../../utils';
@@ -71,16 +71,15 @@ const NodeListRow = memo(
     const isButton = onClick && kind !== 'filter';
     const TextButton = isButton ? 'button' : 'div';
 
-    const determineFocusMode = useCallback(
+    const isInFocusMode = useMemo(
       () =>
         focusMode !== null &&
         type === 'modularPipeline' &&
         id === focusMode?.id,
       [focusMode, type, id]
     );
-    const isInFocusMode = determineFocusMode();
 
-    const determineDisabledLabel = useCallback(() => {
+    const isDisabledLabel = useMemo(() => {
       if (parentPipeline === 'main') {
         return disabled;
       }
@@ -88,8 +87,6 @@ const NodeListRow = memo(
         parentDisabled !== false && disabled === true && isInFocusMode === false
       );
     }, [parentDisabled, disabled, isInFocusMode, parentPipeline]);
-
-    const isDisabledLabel = determineDisabledLabel();
 
     return (
       <Container
