@@ -63,7 +63,6 @@ const NodeListRow = memo(
     parentDisabled,
     parentPipeline,
   }) => {
-    console.log(name, kind, id, focusMode);
     const VisibilityIcon =
       type === 'modularPipeline'
         ? FocusModeIcon
