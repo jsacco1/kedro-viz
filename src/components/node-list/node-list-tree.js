@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 
 import { makeStyles, withStyles } from '@material-ui/core/styles';
@@ -65,7 +65,7 @@ const TreeListProvider = ({
 }) => {
   const classes = useStyles();
 
-  const getExpandedPipelines = useCallback(() => {
+  const expandedPipelines = useMemo(() => {
     const filteredTreeItems =
       searchValue !== ''
         ? getFilteredTreeItems({
@@ -99,7 +99,6 @@ const TreeListProvider = ({
     focusMode,
     inputOutputDataNodes,
   ]);
-  const expandedPipelines = getExpandedPipelines();
 
   const treeData = getNestedModularPipelines({
     nodes,
