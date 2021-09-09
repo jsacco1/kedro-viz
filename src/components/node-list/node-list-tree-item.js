@@ -46,7 +46,11 @@ const NodeListTreeItem = ({
         onClick={() => onItemClick(data)}
         onMouseEnter={() => onItemMouseEnter(data)}
         onMouseLeave={() => onItemMouseLeave(data)}
-        onChange={(e) => onItemChange(data, !e.target.checked)}
+        onChange={(e) => {
+          console.log(e.target);
+          console.log(onItemChange);
+          onItemChange(data, !e.target.checked);
+        }}
         rowType="tree"
         searchCount={searchCount}
         focusMode={focusMode}

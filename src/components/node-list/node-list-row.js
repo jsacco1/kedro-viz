@@ -28,6 +28,7 @@ const shouldMemo = (prevProps, nextProps) =>
       'label',
       'children',
       'count',
+      'focusMode',
     ],
     prevProps,
     nextProps
@@ -62,6 +63,7 @@ const NodeListRow = memo(
     parentDisabled,
     parentPipeline,
   }) => {
+    console.log(name, kind, id, focusMode);
     const VisibilityIcon =
       type === 'modularPipeline'
         ? FocusModeIcon
