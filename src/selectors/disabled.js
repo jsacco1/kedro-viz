@@ -2,12 +2,15 @@ import { createSelector } from 'reselect';
 import { arrayToObject } from '../utils';
 import { getNodeDisabledPipeline, getPipelineNodeIDs } from './pipeline';
 import { getTagCount } from './tags';
-import { getFocusedModularPipeline } from './modular-pipelines';
+import {
+  getFocusedModularPipeline,
+  getNodeIDsInFocusedModularPipeline,
+  getExternalInputOutputIDsForFocusedModularPipeline,
+} from './modular-pipelines';
 
 const getNodeIDs = (state) => state.node.ids;
 const getNodeDisabledNode = (state) => state.node.disabled;
 const getNodeTags = (state) => state.node.tags;
-const getModularPipelineNodes = (state) => state.modularPipeline.nodes;
 const getNodeType = (state) => state.node.type;
 const getTagEnabled = (state) => state.tag.enabled;
 const getNodeTypeDisabled = (state) => state.nodeType.disabled;
@@ -17,43 +20,6 @@ const getEdgeTargets = (state) => state.edge.targets;
 const getLayerIDs = (state) => state.layer.ids;
 const getLayersVisible = (state) => state.layer.visible;
 const getNodeLayer = (state) => state.node.layer;
-
-export const getNodeIDsInFocusedModularPipeline = createSelector(
-  [getModularPipelineNodes, getFocusedModularPipeline],
-  (modularPipelineNodes, focusedModularPipeline) => {
-    return focusedModularPipeline === null
-      ? new Set()
-      : modularPipelineNodes[focusedModularPipeline.id];
-  }
-);
-
-export const getInputsAndOutputsForFocusedModularPipeline = createSelector(
-  [
-    getNodeIDsInFocusedModularPipeline,
-    getEdgeIDs,
-    getEdgeSources,
-    getEdgeTargets,
-  ],
-  (focusedModularPipelineNodeIDs, edgeIDs, edgeSources, edgeTargets) => {
-    const result = new Set();
-    for (const edgeID of edgeIDs) {
-      const source = edgeSources[edgeID];
-      const target = edgeTargets[edgeID];
-      if (
-        focusedModularPipelineNodeIDs.has(source) &&
-        !focusedModularPipelineNodeIDs.has(target)
-      ) {
-        result.add(target);
-      } else if (
-        !focusedModularPipelineNodeIDs.has(source) &&
-        focusedModularPipelineNodeIDs.has(target)
-      ) {
-        result.add(source);
-      }
-    }
-    return result;
-  }
-);
 
 /**
  * Calculate whether nodes should be disabled based on their tags
@@ -82,13 +48,13 @@ export const getNodeDisabledModularPipeline = createSelector(
   [
     getNodeIDs,
     getNodeIDsInFocusedModularPipeline,
-    getInputsAndOutputsForFocusedModularPipeline,
+    getExternalInputOutputIDsForFocusedModularPipeline,
     getFocusedModularPipeline,
   ],
   (
     nodeIDs,
     nodeIDsInFocusedModularPipeline,
-    inputsAndOutputsForFocusedModularPipeline,
+    externalInputOutputIDsForFocusedModularPipeline,
     focusedModularPipeline
   ) =>
     arrayToObject(nodeIDs, (nodeID) => {
@@ -99,7 +65,7 @@ export const getNodeDisabledModularPipeline = createSelector(
       return (
         focusedModularPipeline !== null &&
         !nodeIDsInFocusedModularPipeline.has(nodeID) &&
-        !inputsAndOutputsForFocusedModularPipeline.has(nodeID)
+        !externalInputOutputIDsForFocusedModularPipeline.has(nodeID)
       );
     })
 );

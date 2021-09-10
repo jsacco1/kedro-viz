@@ -3,10 +3,13 @@ import { select } from 'd3-selection';
 import { arrayToObject } from '../utils';
 import { getPipelineNodeIDs } from './pipeline';
 import {
+  getNodeIDsInFocusedModularPipeline,
+  getExternalInputOutputIDsForFocusedModularPipeline,
+} from './modular-pipelines';
+import {
   getNodeDisabled,
   getNodeDisabledTag,
   getVisibleNodeIDs,
-  getNodeDisabledModularPipeline,
 } from './disabled';
 import getShortType from '../utils/short-type';
 import { getNodeRank } from './ranks';
@@ -29,8 +32,6 @@ const getClickedNode = (state) => state.node.clicked;
 const getEdgeIDs = (state) => state.edge.ids;
 const getEdgeSources = (state) => state.edge.sources;
 const getEdgeTargets = (state) => state.edge.targets;
-const getFocusedModularPipeline = (state) =>
-  state.visible.modularPipelineFocusMode;
 
 /**
  * Gets a map of nodeIds to graph nodes
@@ -102,7 +103,6 @@ export const getNodeData = createSelector(
     getNodeDisabled,
     getNodeDisabledNode,
     getNodeDisabledTag,
-    getNodeDisabledModularPipeline,
     getNodeTypeDisabled,
     getNodeModularPipelines,
   ],
@@ -114,7 +114,6 @@ export const getNodeData = createSelector(
     nodeDisabled,
     nodeDisabledNode,
     nodeDisabledTag,
-    nodeDisabledModularPipeline,
     typeDisabled,
     nodeModularPipelines
   ) =>
@@ -137,7 +136,6 @@ export const getNodeData = createSelector(
         disabled: nodeDisabled[id],
         disabledNode: Boolean(nodeDisabledNode[id]),
         disabledTag: nodeDisabledTag[id],
-        disabledModularPipeline: nodeDisabledModularPipeline[id],
         disabledType: Boolean(typeDisabled[nodeType[id]]),
       }))
 );
@@ -307,22 +305,21 @@ export const getNodesWithInputParams = createSelector(
   }
 );
 
+export const getInternalInputOutputIDsForFocusedModularPipeline =
+  createSelector(
+    [getNodeIDsInFocusedModularPipeline],
+    (nodeIDsInFocusedModularPipeline) => {}
+  );
+
 /**
  * Returns a list of dataset nodes that are input and output nodes of the modular pipeline under focus mode
  */
 export const getInputOutputNodesForFocusedModularPipeline = createSelector(
-  [getFocusedModularPipeline, getGraphNodes, getNodeModularPipelines],
-  (focusedModularPipeline, graphNodes, nodeModularPipelines) => {
-    const nodesList = {};
-    if (focusedModularPipeline !== null) {
-      for (const nodeID in graphNodes) {
-        if (
-          !nodeModularPipelines[nodeID].includes(focusedModularPipeline?.id)
-        ) {
-          nodesList[nodeID] = graphNodes[nodeID];
-        }
-      }
-    }
-    return nodesList;
-  }
+  [getGraphNodes, getExternalInputOutputIDsForFocusedModularPipeline],
+  (graphNodes, externalInputOutputIDsForFocusedModularPipeline) =>
+    Object.fromEntries(
+      Object.entries(graphNodes).filter(([nodeID, node]) =>
+        externalInputOutputIDsForFocusedModularPipeline.has(nodeID)
+      )
+    )
 );

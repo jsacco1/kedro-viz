@@ -144,7 +144,6 @@ export const getInputOutputDataEdges = createSelector(
         }
       });
     }
-
     return edgesList;
   }
 );
