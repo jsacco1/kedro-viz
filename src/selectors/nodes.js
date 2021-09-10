@@ -2,10 +2,7 @@ import { createSelector } from 'reselect';
 import { select } from 'd3-selection';
 import { arrayToObject } from '../utils';
 import { getPipelineNodeIDs } from './pipeline';
-import {
-  getNodeIDsInFocusedModularPipeline,
-  getExternalInputOutputIDsForFocusedModularPipeline,
-} from './modular-pipelines';
+import { getInputOutputIDsForFocusedModularPipeline } from './modular-pipelines';
 import {
   getNodeDisabled,
   getNodeDisabledTag,
@@ -305,21 +302,15 @@ export const getNodesWithInputParams = createSelector(
   }
 );
 
-export const getInternalInputOutputIDsForFocusedModularPipeline =
-  createSelector(
-    [getNodeIDsInFocusedModularPipeline],
-    (nodeIDsInFocusedModularPipeline) => {}
-  );
-
 /**
  * Returns a list of dataset nodes that are input and output nodes of the modular pipeline under focus mode
  */
 export const getInputOutputNodesForFocusedModularPipeline = createSelector(
-  [getGraphNodes, getExternalInputOutputIDsForFocusedModularPipeline],
-  (graphNodes, externalInputOutputIDsForFocusedModularPipeline) =>
+  [getGraphNodes, getInputOutputIDsForFocusedModularPipeline],
+  (graphNodes, inputOutputIDs) =>
     Object.fromEntries(
       Object.entries(graphNodes).filter(([nodeID, node]) =>
-        externalInputOutputIDsForFocusedModularPipeline.has(nodeID)
+        inputOutputIDs.has(nodeID)
       )
     )
 );

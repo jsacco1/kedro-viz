@@ -17,6 +17,7 @@ const NodeList = ({
   searchValue,
   getGroupState,
   onUpdateSearchValue,
+  onToggleContracted,
   onGroupToggleChanged,
   onItemClick,
   onItemMouseEnter,
@@ -60,6 +61,7 @@ const NodeList = ({
                     onItemMouseEnter={onItemMouseEnter}
                     onItemMouseLeave={onItemMouseLeave}
                     onItemChange={onItemChange}
+                    onToggleContracted={onToggleContracted}
                     searching={searching}
                     focusMode={focusMode}
                   />

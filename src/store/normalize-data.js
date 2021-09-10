@@ -15,6 +15,8 @@ export const createInitialPipelineState = () => ({
     enabled: {},
     active: {},
 
+    contracted: {},
+
     // map of modular pipeline id to set of nodes in the modular pipeline
     // e.g. "data_science": Set(["node_a", "node_b", "node_c"])
     // this is the inverse of state.node.modularPipelines
@@ -129,6 +131,7 @@ const addModularPipeline = (state) => (modularPipeline) => {
   }
   state.modularPipeline.ids.push(id);
   state.modularPipeline.name[id] = name;
+  state.modularPipeline.contracted[id] = true;
 };
 
 /**
@@ -174,15 +177,17 @@ const addNode = (state) => (node) => {
  * @param {Object} source - Parent node
  * @param {Object} target - Child node
  */
-const addEdge = (state) => ({ source, target }) => {
-  const id = createEdgeID(source, target);
-  if (state.edge.ids.includes(id)) {
-    return;
-  }
-  state.edge.ids.push(id);
-  state.edge.sources[id] = source;
-  state.edge.targets[id] = target;
-};
+const addEdge =
+  (state) =>
+  ({ source, target }) => {
+    const id = createEdgeID(source, target);
+    if (state.edge.ids.includes(id)) {
+      return;
+    }
+    state.edge.ids.push(id);
+    state.edge.sources[id] = source;
+    state.edge.targets[id] = target;
+  };
 
 /**
  * Add a new Tag if it doesn't already exist

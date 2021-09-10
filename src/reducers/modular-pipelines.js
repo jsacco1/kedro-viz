@@ -1,5 +1,6 @@
 import {
   TOGGLE_MODULAR_PIPELINE_ACTIVE,
+  TOGGLE_MODULAR_PIPELINE_CONTRACTED,
   TOGGLE_MODULAR_PIPELINE_FILTER,
 } from '../actions/modular-pipelines';
 
@@ -35,6 +36,14 @@ function modularPipelineReducer(modularPipelineState = {}, action) {
           modularPipelineState.enabled,
           batchChanges('enabled')
         ),
+      });
+    }
+
+    case TOGGLE_MODULAR_PIPELINE_CONTRACTED: {
+      return Object.assign({}, modularPipelineState, {
+        contracted: Object.assign({}, modularPipelineState.contracted, {
+          [action.modularPipelineID]: action.contracted,
+        }),
       });
     }
 

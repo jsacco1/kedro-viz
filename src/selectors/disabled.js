@@ -5,7 +5,10 @@ import { getTagCount } from './tags';
 import {
   getFocusedModularPipeline,
   getNodeIDsInFocusedModularPipeline,
-  getExternalInputOutputIDsForFocusedModularPipeline,
+  getInputOutputIDsForModularPipeline,
+  getInputOutputIDsForFocusedModularPipeline,
+  getContractedModularPipelineIDs,
+  getModularPipelineNodes,
 } from './modular-pipelines';
 
 const getNodeIDs = (state) => state.node.ids;
@@ -48,16 +51,16 @@ export const getNodeDisabledModularPipeline = createSelector(
   [
     getNodeIDs,
     getNodeIDsInFocusedModularPipeline,
-    getExternalInputOutputIDsForFocusedModularPipeline,
+    getInputOutputIDsForFocusedModularPipeline,
     getFocusedModularPipeline,
   ],
   (
     nodeIDs,
     nodeIDsInFocusedModularPipeline,
-    externalInputOutputIDsForFocusedModularPipeline,
+    inputOutputIDs,
     focusedModularPipeline
-  ) =>
-    arrayToObject(nodeIDs, (nodeID) => {
+  ) => {
+    return arrayToObject(nodeIDs, (nodeID) => {
       // for a node to be disabled via modular pipeline,
       // there needs to be a focused modular pipeline and
       // the node doesn't belong in the pipeline and
@@ -65,9 +68,46 @@ export const getNodeDisabledModularPipeline = createSelector(
       return (
         focusedModularPipeline !== null &&
         !nodeIDsInFocusedModularPipeline.has(nodeID) &&
-        !externalInputOutputIDsForFocusedModularPipeline.has(nodeID)
+        !inputOutputIDs.has(nodeID)
       );
-    })
+    });
+  }
+);
+
+export const getNodeDisabledViaContraction = createSelector(
+  [
+    getModularPipelineNodes,
+    getContractedModularPipelineIDs,
+    getEdgeIDs,
+    getEdgeSources,
+    getEdgeTargets,
+    getNodeType,
+  ],
+  (
+    modularPipelineNodes,
+    contractedModularPipelineIDs,
+    edgeIDs,
+    edgeSources,
+    edgeTargets,
+    nodeType
+  ) => {
+    const disabledNodesViaContraction = {};
+    for (const id of contractedModularPipelineIDs) {
+      const modularPipelineNodeIds = modularPipelineNodes[id];
+      const inputOutputIDs = getInputOutputIDsForModularPipeline(
+        modularPipelineNodeIds,
+        edgeIDs,
+        edgeSources,
+        edgeTargets,
+        nodeType
+      );
+      modularPipelineNodes[id].forEach(
+        (nodeID) =>
+          (disabledNodesViaContraction[nodeID] = !inputOutputIDs.has(nodeID))
+      );
+    }
+    return disabledNodesViaContraction;
+  }
 );
 
 /**
@@ -79,6 +119,7 @@ export const getNodeDisabled = createSelector(
     getNodeDisabledNode,
     getNodeDisabledTag,
     getNodeDisabledModularPipeline,
+    getNodeDisabledViaContraction,
     getNodeDisabledPipeline,
     getNodeType,
     getNodeTypeDisabled,
@@ -88,19 +129,22 @@ export const getNodeDisabled = createSelector(
     nodeDisabledNode,
     nodeDisabledTag,
     nodeDisabledModularPipeline,
+    nodeDisabledViaContraction,
     nodeDisabledPipeline,
     nodeType,
     typeDisabled
-  ) =>
-    arrayToObject(nodeIDs, (id) =>
+  ) => {
+    return arrayToObject(nodeIDs, (id) =>
       [
         nodeDisabledNode[id],
         nodeDisabledTag[id],
         nodeDisabledModularPipeline[id],
+        nodeDisabledViaContraction[id],
         nodeDisabledPipeline[id],
         typeDisabled[nodeType[id]],
       ].some(Boolean)
-    )
+    );
+  }
 );
 
 /**

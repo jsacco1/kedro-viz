@@ -27,6 +27,7 @@ import { toggleParametersHovered, toggleFocusMode } from '../../actions';
 import {
   toggleModularPipelineActive,
   toggleModularPipelineFilter,
+  toggleModularPipelineContracted,
 } from '../../actions/modular-pipelines';
 import {
   loadNodeData,
@@ -54,6 +55,7 @@ const NodeListProvider = ({
   onToggleTagFilter,
   onToggleModularPipelineActive,
   onToggleTypeDisabled,
+  onToggleModularPipelineContracted,
   onToggleModularPipelineFilter,
   onToggleFocusMode,
   modularPipelines,
@@ -76,15 +78,8 @@ const NodeListProvider = ({
   const groups = getGroups({ items });
 
   const onItemClick = (item) => {
-    if (isGroupType(item.type) || isModularPipelineType(item.type)) {
+    if (isGroupType(item.type)) {
       onGroupItemChange(item, item.checked);
-      if (isModularPipelineType(item.type)) {
-        if (focusMode === null) {
-          onToggleFocusMode(item);
-        } else {
-          onToggleFocusMode(null);
-        }
-      }
     } else {
       if (item.faded || item.selected) {
         onToggleNodeSelected(null);
@@ -193,6 +188,7 @@ const NodeListProvider = ({
       groups={groups}
       searchValue={searchValue}
       onUpdateSearchValue={updateSearchValue}
+      onToggleContracted={onToggleModularPipelineContracted}
       onGroupToggleChanged={onGroupToggleChanged}
       onItemClick={onItemClick}
       onItemMouseEnter={onItemMouseEnter}
@@ -226,6 +222,9 @@ export const mapDispatchToProps = (dispatch) => ({
   },
   onToggleModularPipelineFilter: (modularPipelineIDs, enabled) => {
     dispatch(toggleModularPipelineFilter(modularPipelineIDs, enabled));
+  },
+  onToggleModularPipelineContracted: (modularPipelineID, contracted) => {
+    dispatch(toggleModularPipelineContracted(modularPipelineID, contracted));
   },
   onToggleTypeDisabled: (typeID, disabled) => {
     dispatch(toggleTypeDisabled(typeID, disabled));

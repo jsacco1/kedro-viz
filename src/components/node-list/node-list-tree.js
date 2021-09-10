@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
+import difference from 'lodash.difference';
 
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import TreeView from '@material-ui/lab/TreeView';
@@ -26,7 +27,7 @@ import {
   getNodeModularPipelines,
   getInputOutputNodesForFocusedModularPipeline,
 } from '../../selectors/nodes';
-import { loadNodeData } from '../../actions/nodes';
+import { loadNodeData, toggleNodeClicked } from '../../actions/nodes';
 import NodeListTreeItem from './node-list-tree-item';
 
 // please note that this setup is unique for initialization of the material-ui tree,
@@ -51,6 +52,8 @@ const TreeListProvider = ({
   nodes,
   nodeSelected,
   onToggleNodeSelected,
+  onToggleNodeClicked,
+  onToggleContracted,
   searchValue,
   modularPipelines,
   modularPipelineIds,
@@ -116,6 +119,13 @@ const TreeListProvider = ({
     if (!isModularPipelineType(item.type)) {
       onToggleNodeSelected(item.id);
     }
+  };
+
+  const onItemExpandToggle = (event, expandedItemIds) => {
+    onToggleNodeClicked(null);
+    const unexpandedItemIds = difference(modularPipelineIds, expandedItemIds);
+    unexpandedItemIds.forEach((id) => onToggleContracted(id, true));
+    expandedItemIds.forEach((id) => onToggleContracted(id, false));
   };
 
   const renderModularPipelines = (treeData, parentStatus) => {
@@ -194,6 +204,7 @@ const TreeListProvider = ({
       className={classes.root}
       defaultCollapseIcon={<ExpandMoreIcon />}
       defaultExpandIcon={<ChevronRightIcon />}
+      onNodeToggle={onItemExpandToggle}
       key="tree">
       {renderModularPipelines(treeData, false)}
       {renderChildNodes(treeData)}
@@ -221,6 +232,9 @@ export const mapDispatchToProps = (dispatch) => ({
   },
   onToggleTypeDisabled: (typeID, disabled) => {
     dispatch(toggleTypeDisabled(typeID, disabled));
+  },
+  onToggleNodeClicked: (nodeID) => {
+    dispatch(toggleNodeClicked(nodeID));
   },
   onToggleNodeSelected: (nodeID) => {
     dispatch(loadNodeData(nodeID));
